@@ -34,7 +34,21 @@ const pool = mariadb.createPool({
     connectionLimit: 5
 })
 
-app.get('/customers/:name', (req, res) => {
+/**
+ * @swagger
+ * /customers:
+ *      put:
+ *          description: update a specific customer's city
+ *          parameters: 
+ *              name: name of customer
+ *              city: city of the customer
+ *          produces:
+ *              - applicaton/json
+ *          responses:
+ *              200:
+ *                  description: Object customers
+ */
+app.put('/customers/:name', (req, res) => {
     var name = req.params.name
     pool.getConnection()
         .then(conn => {
@@ -43,6 +57,59 @@ app.get('/customers/:name', (req, res) => {
         })
 })
 
+/**
+ * @swagger
+ * /companies:
+ *      post:
+ *          description: Adds a new comapny
+ *          produces:
+ *              - applicaton/json
+ *          responses:
+ *              200:
+ *                  description: success 
+ */
+app.post('/companies', (req, res) => {
+    var [id, name, city] = req.params
+    pool.getConnection()
+        .then(conn => {
+            conn.query(`insert into company (${id},${name},${city})`)
+            res.send(`${name} was added`)
+        })
+})
+
+/**
+ * @swagger
+ * /customers:
+ *      patch:
+ *          description: Return all customers
+ *          produces:
+ *              - applicaton/json
+ *          responses:
+ *              200:
+ *                  description: Object customers
+ */
+app.patch('/customers/:name', (req, res) => {
+    var name = req.params.name
+    pool.getConnection()
+        .then(conn => {
+            conn.query(`update customer set cust_city = "London" where cust_name="${name}"`)
+            res.send(`${name} was updated`)
+        })
+})
+
+/**
+ * @swagger
+ * /customers:
+ *      delete:
+ *          description: delete a specific customer
+ *          parameters: 
+ *              name: name of customer
+ *          produces:
+ *              - applicaton/json
+ *          responses:
+ *              200:
+ *                  description: Object customers
+ */
 app.delete('/customers/:name', (req, res) => {
     var name = req.params.name
     pool.getConnection()
@@ -76,6 +143,43 @@ app.get('/customers', (req, res) => {
         })
 })
 
+/**
+ * @swagger
+ * /companies:
+ *      get:
+ *          description: Return all companies
+ *          produces:
+ *              - applicaton/json
+ *          responses:
+ *              200:
+ *                  description: Object companies
+ */
+app.get('/companies', (req, res) => {
+    pool.getConnection()
+        .then(conn => {
+            conn.query("SELECT * FROM company")
+                .then((rows) => {
+                    console.log(rows)
+                    res.json(rows)
+                })
+        }).catch(err => {
+            console.log(err)
+        })
+})
+
+/**
+ * @swagger
+ * /customers:
+ *      get:
+ *          description: Return a specific customer
+ *          parameters: 
+ *              name: name of customer
+ *          produces:
+ *              - applicaton/json
+ *          responses:
+ *              200:
+ *                  description: Object customers
+ */
 app.get('/customers/:name', (req, res) => {
     var name = req.params.name
     pool.getConnection()
